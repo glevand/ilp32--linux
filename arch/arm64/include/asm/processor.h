@@ -59,8 +59,7 @@
 				TASK_SIZE_32 : TASK_SIZE_64)
 #define TASK_SIZE_OF(tsk)	(is_32bit_thread() ? \
 				TASK_SIZE_32 : TASK_SIZE_64)
-// FIXME: DEFAULT_MAP_WINDOW: Use is_ilp32_thread()???
-#define DEFAULT_MAP_WINDOW	(is_compat_task() ? \
+#define DEFAULT_MAP_WINDOW	((is_compat_task() || is_ilp32_task()) ? \
 				TASK_SIZE_32 : DEFAULT_MAP_WINDOW_64)
 #else
 #define TASK_SIZE		TASK_SIZE_64
