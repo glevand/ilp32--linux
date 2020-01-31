@@ -594,7 +594,7 @@ void do_coredump(const kernel_siginfo_t *siginfo)
 	audit_core_dumps(siginfo->si_signo);
 
 	binfmt = mm->binfmt;
-	if (!binfmt || !binfmt->core_dump)
+	if (!binfmt || !binfmt->core_dump || test_thread_flag(TIF_ILP32))
 		goto fail;
 	if (!__get_dumpable(cprm.mm_flags))
 		goto fail;
