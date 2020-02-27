@@ -9,9 +9,9 @@
 #include <linux/types.h>
 
 int __kernel_clock_gettime(clockid_t clock,
-			   struct __kernel_timespec *ts)
+			   struct old_timespec32 *ts)
 {
-	return __cvdso_clock_gettime(clock, ts);
+	return __cvdso_clock_gettime32(clock, ts);
 }
 
 int __kernel_gettimeofday(struct __kernel_old_timeval *tv,
@@ -21,7 +21,7 @@ int __kernel_gettimeofday(struct __kernel_old_timeval *tv,
 }
 
 int __kernel_clock_getres(clockid_t clock_id,
-			  struct __kernel_timespec *res)
+			  struct old_timespec32 *res)
 {
-	return __cvdso_clock_getres(clock_id, res);
+	return __cvdso_clock_getres_time32(clock_id, res);
 }
