@@ -71,7 +71,7 @@ PHDRS
  */
 VERSION
 {
-	LINUX_2.6.39 {
+	LINUX_4.9 {
 	global:
 		__kernel_rt_sigreturn;
 		__kernel_gettimeofday;
