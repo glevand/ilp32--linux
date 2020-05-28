@@ -56,6 +56,10 @@ config BINFMT_ELF_FDPIC
 
 	  It is also possible to run FDPIC ELF binaries on MMU linux also.
 
+config BINFMT_ARM64_ILP32
+	bool
+	depends on ARM64_ILP32 && BINFMT_ELF
+
 config ELFCORE
 	bool
 	help
