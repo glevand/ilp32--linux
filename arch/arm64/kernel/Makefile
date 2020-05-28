@@ -31,6 +31,7 @@ obj-$(CONFIG_COMPAT)			+= sys32.o signal32.o			\
 					   sys_compat.o
 obj-$(CONFIG_COMPAT)			+= sigreturn32.o
 obj-$(CONFIG_ARM64_ILP32)		+= sys_ilp32.o
+obj-$(CONFIG_ARM64_ILP32)		+= signal_ilp32.o
 obj-$(CONFIG_KUSER_HELPERS)		+= kuser32.o
 obj-$(CONFIG_FUNCTION_TRACER)		+= ftrace.o entry-ftrace.o
 obj-$(CONFIG_MODULES)			+= module.o
