@@ -32,12 +32,24 @@ extern char vdso_start[], vdso_end[];
 #ifdef CONFIG_COMPAT_VDSO
 extern char vdso32_start[], vdso32_end[];
 #endif /* CONFIG_COMPAT_VDSO */
+#ifdef CONFIG_ARM64_ILP32_VDSO
+extern char vdso_ilp32_start[], vdso_ilp32_end[];
+#endif /* CONFIG_ARM64_ILP32_VDSO */
 
+<<<<<<< HEAD
 enum vdso_abi {
 	VDSO_ABI_AA64,
 #ifdef CONFIG_COMPAT_VDSO
 	VDSO_ABI_AA32,
 #endif /* CONFIG_COMPAT_VDSO */
+=======
+/* vdso_lookup arch_index */
+enum arch_vdso_type {
+	ARM64_VDSO = 0,
+	ARM64_VDSO32,
+	ARM64_ILP32_VDSO,
+	VDSO_TYPES
+>>>>>>> 84f8c74a16e4... vdso: Mod 1
 };
 
 struct vdso_abi_info {
@@ -57,13 +69,25 @@ static struct vdso_abi_info vdso_info[] __ro_after_init = {
 		.vdso_code_start = vdso_start,
 		.vdso_code_end = vdso_end,
 	},
+<<<<<<< HEAD
 #ifdef CONFIG_COMPAT_VDSO
 	[VDSO_ABI_AA32] = {
+=======
+	{
+>>>>>>> 84f8c74a16e4... vdso: Mod 1
 		.name = "vdso32",
+#ifdef CONFIG_COMPAT_VDSO
 		.vdso_code_start = vdso32_start,
 		.vdso_code_end = vdso32_end,
-	},
 #endif /* CONFIG_COMPAT_VDSO */
+	},
+	{
+		.name = "vdso_ilp32",
+#ifdef CONFIG_ARM64_ILP32_VDSO
+		.vdso_code_start = vdso_ilp32_start,
+		.vdso_code_end = vdso_ilp32_end,
+#endif /* CONFIG_ARM64_ILP32_VDSO */
+	},
 };
 
 /*
@@ -91,7 +115,21 @@ static int __vdso_remap(enum vdso_abi abi,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int __vdso_init(enum vdso_abi abi)
+=======
+static void vdso_print_info(const struct __vdso_abi *p)
+{
+	pr_info("vdso: %ld pages (%ld code @ %p, %ld data @ %p)\n",
+		p->vdso_pages + 1,
+		p->vdso_pages,
+		p->vdso_code_start,
+		1L,
+		vdso_data);
+}
+
+static int __vdso_init(enum arch_vdso_type arch_index)
+>>>>>>> 84f8c74a16e4... vdso: Mod 1
 {
 	int i;
 	struct page **vdso_pagelist;
@@ -106,6 +144,8 @@ static int __vdso_init(enum vdso_abi abi)
 			vdso_info[abi].vdso_code_end -
 			vdso_info[abi].vdso_code_start) >>
 			PAGE_SHIFT;
+
+	vdso_print_info(&vdso_lookup[arch_index]);
 
 	/* Allocate the vDSO pagelist, plus a page for the data. */
 	vdso_pagelist = kcalloc(vdso_info[abi].vdso_pages + 1,
@@ -357,6 +397,44 @@ out:
 }
 #endif /* CONFIG_COMPAT */
 
+
+#if defined(CONFIG_ARM64_ILP32_VDSO)
+static int ilp32_vdso_mremap(const struct vm_special_mapping *sm,
+		struct vm_area_struct *new_vma)
+{
+	return __vdso_remap(ARM64_ILP32_VDSO, sm, new_vma);
+}
+
+static int __init ilp32_vdso_init(void)
+{
+/*
+ * ilp32_vdso_pages:
+ * 0 - vvar
+ * 1 - vdso
+ */
+#define ILP32_VVAR		0
+#define ILP32_VDSO		1
+#define ILP32_PAGES		(ILP32_VDSO + 1)
+
+	static struct vm_special_mapping ilp32_vdso_spec[ILP32_PAGES] __ro_after_init = {
+		{
+			.name	= "[vvar]",
+		},
+		{
+			.name	= "[vdso]",
+			.mremap = ilp32_vdso_mremap,
+		},
+	};
+
+	vdso_lookup[ARM64_ILP32_VDSO].dm = &ilp32_vdso_spec[ILP32_VVAR];
+	vdso_lookup[ARM64_ILP32_VDSO].cm = &ilp32_vdso_spec[ILP32_VDSO];
+
+	return __vdso_init(ARM64_ILP32_VDSO);
+}
+
+arch_initcall(ilp32_vdso_init);
+#endif /* CONFIG_ARM64_ILP32_VDSO */
+
 static int vdso_mremap(const struct vm_special_mapping *sm,
 		struct vm_area_struct *new_vma)
 {
@@ -396,10 +474,21 @@ int arch_setup_additional_pages(struct linux_binprm *bprm,
 	if (mmap_write_lock_killable(mm))
 		return -EINTR;
 
+<<<<<<< HEAD
 	ret = __setup_additional_pages(VDSO_ABI_AA64,
+=======
+	if (is_ilp32_task()) {
+		ret = __setup_additional_pages(ARM64_ILP32_VDSO,
+>>>>>>> 84f8c74a16e4... vdso: Mod 1
 				       mm,
 				       bprm,
 				       uses_interp);
+	} else {
+		ret = __setup_additional_pages(ARM64_VDSO,
+				       mm,
+				       bprm,
+				       uses_interp);
+	}
 
 	mmap_write_unlock(mm);
 
